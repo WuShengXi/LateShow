@@ -4,5 +4,6 @@
 
 ## Android相关整理记录
 
-* [设计模式-单例模式](androidxiang-guan/she-ji-mo-5f0f-dan-li-mo-shi.md)
+* [设计模式之单例模式](androidxiang-guan/she-ji-mo-5f0f-dan-li-mo-shi.md)
+* [设计模式之Build模式](androidxiang-guan/she-ji-mo-shi-zhi-build-mo-shi.md)
 
