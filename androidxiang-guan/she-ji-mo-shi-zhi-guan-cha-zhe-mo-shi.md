@@ -31,19 +31,19 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 场景1中我们感兴趣的事情是天气预报，于是，我们应该定义一个Weather实体类。
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22  | public class Weather { private String description;  public Weather\(String description\) { this.description = description;     }  public String getDescription\(\) { return description;     }  public void setDescription\(String description\) { this.description = description;     }  @Override public String toString\(\) { return "Weather{" + "description='" + description + '\'' + '}';     } }  |
+| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 | public class Weather { private String description;  public Weather\(String description\) { this.description = description;     }  public String getDescription\(\) { return description;     }  public void setDescription\(String description\) { this.description = description;     }  @Override public String toString\(\) { return "Weather{" + "description='" + description + '\'' + '}';     } } |
 | :--- | :--- |
 
 
 然后定义我们的被观察者，我们想要这个被观察者能够通用，将其定义成泛型。内部应该暴露register和unregister方法供观察者订阅和取消订阅，至于观察者的保存，直接用ArrayList即可，此外，当有主题内容发送改变时，会即时通知观察者做出反应，因此应该暴露一个notifyObservers方法，以上方法的具体实现见如下代码。
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24  | public class Observable&lt;T&gt; {     List&lt;Observer&lt;T&gt;&gt; mObservers = new ArrayList&lt;Observer&lt;T&gt;&gt;\(\);  public void register\(Observer&lt;T&gt; observer\) { if \(observer == null\) { throw new NullPointerException\("observer == null"\);         } synchronized \(this\) { if \(!mObservers.contains\(observer\)\)                 mObservers.add\(observer\);         }     }  public synchronized void unregister\(Observer&lt;T&gt; observer\) {         mObservers.remove\(observer\);     }  public void notifyObservers\(T data\) { for \(Observer&lt;T&gt; observer : mObservers\) {             observer.onUpdate\(this, data\);         }     }  }  |
+| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 | public class Observable&lt;T&gt; {     List&lt;Observer&lt;T&gt;&gt; mObservers = new ArrayList&lt;Observer&lt;T&gt;&gt;\(\);  public void register\(Observer&lt;T&gt; observer\) { if \(observer == null\) { throw new NullPointerException\("observer == null"\);         } synchronized \(this\) { if \(!mObservers.contains\(observer\)\)                 mObservers.add\(observer\);         }     }  public synchronized void unregister\(Observer&lt;T&gt; observer\) {         mObservers.remove\(observer\);     }  public void notifyObservers\(T data\) { for \(Observer&lt;T&gt; observer : mObservers\) {             observer.onUpdate\(this, data\);         }     }  } |
 | :--- | :--- |
 
 
 而我们的观察者，只需要实现一个观察者的接口Observer，该接口也是泛型的。其定义如下。
 
-| 1 2 3  | public interface Observer&lt;T&gt; { void onUpdate\(Observable&lt;T&gt; observable,T data\); }  |
+| 1 2 3 | public interface Observer&lt;T&gt; { void onUpdate\(Observable&lt;T&gt; observable,T data\); } |
 | :--- | :--- |
 
 
@@ -51,7 +51,7 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 我们来使用一下，我们定义了一个天气变换的主题，也就是被观察者，还有两个观察者观察天气变换，一旦变换了，就打印出天气信息，注意一定要调用被观察者的register进行注册，否则会收不到变换信息。而一旦不敢兴趣了，直接调用unregister方法进行取消注册即可
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33  | public class Main { public static void main\(String \[\] args\){         Observable&lt;Weather&gt; observable=new Observable&lt;Weather&gt;\(\);         Observer&lt;Weather&gt; observer1=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者1："+data.toString\(\)\);             }         };         Observer&lt;Weather&gt; observer2=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者2："+data.toString\(\)\);             }         };          observable.register\(observer1\);         observable.register\(observer2\);           Weather weather=new Weather\("晴转多云"\);         observable.notifyObservers\(weather\);          Weather weather1=new Weather\("多云转阴"\);         observable.notifyObservers\(weather1\);          observable.unregister\(observer1\);          Weather weather2=new Weather\("台风"\);         observable.notifyObservers\(weather2\);      } }  |
+| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 | public class Main { public static void main\(String \[\] args\){         Observable&lt;Weather&gt; observable=new Observable&lt;Weather&gt;\(\);         Observer&lt;Weather&gt; observer1=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者1："+data.toString\(\)\);             }         };         Observer&lt;Weather&gt; observer2=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者2："+data.toString\(\)\);             }         };          observable.register\(observer1\);         observable.register\(observer2\);           Weather weather=new Weather\("晴转多云"\);         observable.notifyObservers\(weather\);          Weather weather1=new Weather\("多云转阴"\);         observable.notifyObservers\(weather1\);          observable.unregister\(observer1\);          Weather weather2=new Weather\("台风"\);         observable.notifyObservers\(weather2\);      } } |
 | :--- | :--- |
 
 
@@ -65,7 +65,7 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 接下来我们看看观察者模式在android中的应用。我们从最简单的开始。还记得我们为一个Button设置点击事件的代码吗。
 
-| 1 2 3 4 5 6 7  | Button btn=new Button\(this\); btn.setOnClickListener\(new View.OnClickListener\(\) { @Override public void onClick\(View v\) { 		Log.e\("TAG","click"\); 	} }\);  |
+| 1 2 3 4 5 6 7 | Button btn=new Button\(this\); btn.setOnClickListener\(new View.OnClickListener\(\) { @Override public void onClick\(View v\) {         Log.e\("TAG","click"\);     } }\); |
 | :--- | :--- |
 
 
@@ -73,13 +73,13 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 其实只要是set系列的设置监听器的方法最多都只能算回调，但是有一些监听器式add进去的，这种就是观察者模式了，比如RecyclerView中的addOnScrollListener方法
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  | private List&lt;OnScrollListener&gt; mScrollListeners; public void addOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners == null\) { 		mScrollListeners = new ArrayList&lt;OnScrollListener&gt;\(\); 	} 	mScrollListeners.add\(listener\); } public void removeOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners != null\) { 		mScrollListeners.remove\(listener\); 	} } public void clearOnScrollListeners\(\) { if \(mScrollListeners != null\) { 		mScrollListeners.clear\(\); 	} }  |
+| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 | private List&lt;OnScrollListener&gt; mScrollListeners; public void addOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners == null\) {         mScrollListeners = new ArrayList&lt;OnScrollListener&gt;\(\);     }     mScrollListeners.add\(listener\); } public void removeOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners != null\) {         mScrollListeners.remove\(listener\);     } } public void clearOnScrollListeners\(\) { if \(mScrollListeners != null\) {         mScrollListeners.clear\(\);     } } |
 | :--- | :--- |
 
 
 然后有滚动事件时便会触发观察者进行方法回调
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21  | public abstract static class OnScrollListener { public void onScrollStateChanged\(RecyclerView recyclerView, int newState\){} public void onScrolled\(RecyclerView recyclerView, int dx, int dy\){} }  void dispatchOnScrolled\(int hresult, int vresult\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) { 			mScrollListeners.get\(i\).onScrolled\(this, hresult, vresult\); 		} 	} } void dispatchOnScrollStateChanged\(int state\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) { 			mScrollListeners.get\(i\).onScrollStateChanged\(this, state\); 		} 	} }  |
+| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 | public abstract static class OnScrollListener { public void onScrollStateChanged\(RecyclerView recyclerView, int newState\){} public void onScrolled\(RecyclerView recyclerView, int dx, int dy\){} }  void dispatchOnScrolled\(int hresult, int vresult\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) {             mScrollListeners.get\(i\).onScrolled\(this, hresult, vresult\);         }     } } void dispatchOnScrollStateChanged\(int state\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) {             mScrollListeners.get\(i\).onScrollStateChanged\(this, state\);         }     } } |
 | :--- | :--- |
 
 
@@ -89,9 +89,12 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 我们平时使用本地广播主要就是下面四个方法
 
-| 1 2 3 4  | LocalBroadcastManager localBroadcastManager=LocalBroadcastManager.getInstance\(this\); localBroadcastManager.registerReceiver\(BroadcastReceiver receiver, IntentFilter filter\); localBroadcastManager.unregisterReceiver\(BroadcastReceiver receiver\); localBroadcastManager.sendBroadcast\(Intent intent\)  |
-| :--- | :--- |
-
+```java
+LocalBroadcastManager localBroadcastManager=LocalBroadcastManager.getInstance(this);
+localBroadcastManager.registerReceiver(BroadcastReceiver receiver, IntentFilter filter);
+localBroadcastManager.unregisterReceiver(BroadcastReceiver receiver);
+localBroadcastManager.sendBroadcast(Intent intent)
+```
 
 调用registerReceiver方法注册广播，调用unregisterReceiver方法取消注册，之后直接使用sendBroadcast发送广播，发送广播之后，注册的广播会收到对应的广播信息，这就是典型的观察者模式。具体的源代码这里也不贴。
 
@@ -99,9 +102,12 @@ android系统中的观察者模式还有很多很多，有兴趣的自己去挖�
 
 观察者模式的三个典型方法它都具有，即注册，取消注册，发送事件
 
-| 1 2 3 4  | EventBus.getDefault\(\).register\(Object subscriber\); EventBus.getDefault\(\).unregister\(Object subscriber\);  EventBus.getDefault\(\).post\(Object event\);  |
-| :--- | :--- |
+```java
+EventBus.getDefault().register(Object subscriber);
+EventBus.getDefault().unregister(Object subscriber);
 
+EventBus.getDefault().post(Object event);
+```
 
 内部源码也不展开了。接下来看一下重量级的库，它就是RxJava，由于学习曲线的陡峭，这个库让很多人望而止步。
 
@@ -125,10 +131,10 @@ Observable<String> myObservable = Observable.create(
 Subscriber<String> mySubscriber = new Subscriber<String>() {  
     @Override  
     public void onNext(String s) { System.out.println(s); }  
-  
+
     @Override  
     public void onCompleted() { }  
-  
+
     @Override  
     public void onError(Throwable e) { }  
 };
