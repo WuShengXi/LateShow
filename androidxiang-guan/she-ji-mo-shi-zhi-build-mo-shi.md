@@ -1,4 +1,4 @@
-### Build模式
+## Build模式
 
 那么什么是Builder模式。你通过搜索，会发现大部分网上的定义都是
 
@@ -53,10 +53,10 @@ public class Person {
 
 ```java
 public Person(String name, int age, double height, double weight) {
-	this.name = name;
-	this.age = age;
-	this.height = height;
-	this.weight = weight;
+    this.name = name;
+    this.age = age;
+    this.height = height;
+    this.weight = weight;
 }
 ```
 
@@ -71,18 +71,18 @@ public Person() {
 
 ```java
 public Person(String name) {
-	this.name = name;
+    this.name = name;
 }
 
 public Person(String name, int age) {
-	this.name = name;
-	this.age = age;
+    this.name = name;
+    this.age = age;
 }
 
 public Person(String name, int age, double height) {
-	this.name = name;
-	this.age = age;
-	this.height = height;
+    this.name = name;
+    this.age = age;
+    this.height = height;
 }
 ```
 
@@ -182,11 +182,11 @@ public class Person {
 ```
 Person.Builder builder=new Person.Builder();
 Person person=builder
-		.name("张三")
-		.age(18)
-		.height(178.5)
-		.weight(67.4)
-		.build();
+        .name("张三")
+        .age(18)
+        .height(178.5)
+        .weight(67.4)
+        .build();
 ```
 
 有没有觉得创建过程一下子就变得那么清晰了。对应的值是什么属性一目了然，可读性大大增强。
@@ -196,21 +196,21 @@ Person person=builder
 ```java
 AlertDialog.Builder builder=new AlertDialog.Builder(this);
 AlertDialog dialog=builder.setTitle("标题")
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setView(R.layout.myview)
-		.setPositiveButton(R.string.positive, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+        .setIcon(android.R.drawable.ic_dialog_alert)
+        .setView(R.layout.myview)
+        .setPositiveButton(R.string.positive, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-			}
-		})
-		.setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+            }
+        })
+        .setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-			}
-		})
-		.create();
+            }
+        })
+        .create();
 dialog.show();
 ```
 
@@ -223,36 +223,36 @@ dialog.show();
 ```java
 GsonBuilder builder=new GsonBuilder();
 Gson gson=builder.setPrettyPrinting()
-		.disableHtmlEscaping()
-		.generateNonExecutableJson()
-		.serializeNulls()
-		.create();
+        .disableHtmlEscaping()
+        .generateNonExecutableJson()
+        .serializeNulls()
+        .create();
 ```
 
 还有EventBus中也有一个Builder，只不过这个Builder外部访问不到而已，因为它的构造函数不是public的，但是你可以在EventBus这个类中看到他的应用。
 
 ```java
 public static EventBusBuilder builder() {
-	return new EventBusBuilder();
+    return new EventBusBuilder();
 }
 public EventBus() {
-	this(DEFAULT_BUILDER);
+    this(DEFAULT_BUILDER);
 }
 EventBus(EventBusBuilder builder) {
-	subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
-	typesBySubscriber = new HashMap<Object, List<Class<?>>>();
-	stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
-	mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
-	backgroundPoster = new BackgroundPoster(this);
-	asyncPoster = new AsyncPoster(this);
-	subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
-	logSubscriberExceptions = builder.logSubscriberExceptions;
-	logNoSubscriberMessages = builder.logNoSubscriberMessages;
-	sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
-	sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
-	throwSubscriberException = builder.throwSubscriberException;
-	eventInheritance = builder.eventInheritance;
-	executorService = builder.executorService;
+    subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
+    typesBySubscriber = new HashMap<Object, List<Class<?>>>();
+    stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
+    mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
+    backgroundPoster = new BackgroundPoster(this);
+    asyncPoster = new AsyncPoster(this);
+    subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
+    logSubscriberExceptions = builder.logSubscriberExceptions;
+    logNoSubscriberMessages = builder.logNoSubscriberMessages;
+    sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
+    sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
+    throwSubscriberException = builder.throwSubscriberException;
+    eventInheritance = builder.eventInheritance;
+    executorService = builder.executorService;
 }
 ```
 
@@ -261,25 +261,25 @@ EventBus(EventBusBuilder builder) {
 ```java
 Request.Builder builder=new Request.Builder();
 Request request=builder.addHeader("","")
-	.url("")
-	.post(body)
-	.build();
+    .url("")
+    .post(body)
+    .build();
 ```
 
 除了Request外，Response也是通过Builder模式创建的。贴一下Response的构造函数
 
 ```java
 private Response(Builder builder) {
-	this.request = builder.request;
-	this.protocol = builder.protocol;
-	this.code = builder.code;
-	this.message = builder.message;
-	this.handshake = builder.handshake;
-	this.headers = builder.headers.build();
-	this.body = builder.body;
-	this.networkResponse = builder.networkResponse;
-	this.cacheResponse = builder.cacheResponse;
-	this.priorResponse = builder.priorResponse;
+    this.request = builder.request;
+    this.protocol = builder.protocol;
+    this.code = builder.code;
+    this.message = builder.message;
+    this.handshake = builder.handshake;
+    this.headers = builder.headers.build();
+    this.body = builder.body;
+    this.networkResponse = builder.networkResponse;
+    this.cacheResponse = builder.cacheResponse;
+    this.priorResponse = builder.priorResponse;
 }
 ```
 
