@@ -1,7 +1,3 @@
-Android开发中常见的设计模式 - Sun‘刺眼的博客 - 博客园
-
-var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=false;
-
 前面介绍了单例模式和Builder模式，这部分着重介绍一下观察者模式。先看下这个模式的定义。
 
 > 定义对象间的一种一对多的依赖关系，当一个对象的状态发送改变时，所有依赖于它的对象都能得到通知并被自动更新
@@ -146,10 +142,10 @@ public class Main {
 ```java
 Button btn=new Button(this);
 btn.setOnClickListener(new View.OnClickListener() {
-	@Override
-	public void onClick(View v) {
-		Log.e("TAG","click");
-	}
+    @Override
+    public void onClick(View v) {
+        Log.e("TAG","click");
+    }
 });
 ```
 
@@ -160,20 +156,20 @@ btn.setOnClickListener(new View.OnClickListener() {
 ```java
 private List<OnScrollListener> mScrollListeners;
 public void addOnScrollListener(OnScrollListener listener) {
-	if (mScrollListeners == null) {
-		mScrollListeners = new ArrayList<OnScrollListener>();
-	}
-	mScrollListeners.add(listener);
+    if (mScrollListeners == null) {
+        mScrollListeners = new ArrayList<OnScrollListener>();
+    }
+    mScrollListeners.add(listener);
 }
 public void removeOnScrollListener(OnScrollListener listener) {
-	if (mScrollListeners != null) {
-		mScrollListeners.remove(listener);
-	}
+    if (mScrollListeners != null) {
+        mScrollListeners.remove(listener);
+    }
 }
 public void clearOnScrollListeners() {
-	if (mScrollListeners != null) {
-		mScrollListeners.clear();
-	}
+    if (mScrollListeners != null) {
+        mScrollListeners.clear();
+    }
 }
 ```
 
@@ -181,25 +177,25 @@ public void clearOnScrollListeners() {
 
 ```java
 public abstract static class OnScrollListener {
-	public void onScrollStateChanged(RecyclerView recyclerView, int newState){}
-	public void onScrolled(RecyclerView recyclerView, int dx, int dy){}
+    public void onScrollStateChanged(RecyclerView recyclerView, int newState){}
+    public void onScrolled(RecyclerView recyclerView, int dx, int dy){}
 }
 
 void dispatchOnScrolled(int hresult, int vresult) {
-	//...
-	if (mScrollListeners != null) {
-		for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
-			mScrollListeners.get(i).onScrolled(this, hresult, vresult);
-		}
-	}
+    //...
+    if (mScrollListeners != null) {
+        for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+            mScrollListeners.get(i).onScrolled(this, hresult, vresult);
+        }
+    }
 }
 void dispatchOnScrollStateChanged(int state) {
-	//...
-	if (mScrollListeners != null) {
-		for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
-			mScrollListeners.get(i).onScrollStateChanged(this, state);
-		}
-	}
+    //...
+    if (mScrollListeners != null) {
+        for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+            mScrollListeners.get(i).onScrollStateChanged(this, state);
+        }
+    }
 }
 ```
 
