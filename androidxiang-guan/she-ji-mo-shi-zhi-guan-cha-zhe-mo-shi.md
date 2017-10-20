@@ -206,7 +206,7 @@ void dispatchOnScrollStateChanged(int state) {
 我们平时使用本地广播主要就是下面四个方法
 
 ```java
-LocalBroadcastManager localBroadcastManager=LocalBroadcastManager.getInstance(this);
+LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
 localBroadcastManager.registerReceiver(BroadcastReceiver receiver, IntentFilter filter);
 localBroadcastManager.unregisterReceiver(BroadcastReceiver receiver);
 localBroadcastManager.sendBroadcast(Intent intent)
