@@ -19,7 +19,7 @@ public class Singleton {
 
     private Singleton(){
     }
- 
+
     public static Singleton getInstance() {
         if (instance == null) {
             synchronized (Singleton.class) {
@@ -44,22 +44,22 @@ public class Singleton {
 
 ```java
 public static void main(String[] args) {
-	final CountDownLatch latch = new CountDownLatch(1);
-	int threadCount = 1000;
-	for (int i = 0; i < threadCount; i++) {
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					latch.await();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				System.out.println(Singleton.getInstance().hashCode());
-			}
-		}.start();
-	}
-	latch.countDown();
+    final CountDownLatch latch = new CountDownLatch(1);
+    int threadCount = 1000;
+    for (int i = 0; i < threadCount; i++) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(Singleton.getInstance().hashCode());
+            }
+        }.start();
+    }
+    latch.countDown();
 }
 ```
 
@@ -73,14 +73,14 @@ public static void main(String[] args) {
 private volatile static ImageLoader instance;
 /** Returns singleton class instance */
 public static ImageLoader getInstance() {
-	if (instance == null) {
-		synchronized (ImageLoader.class) {
-			if (instance == null) {
-				instance = new ImageLoader();
-			}
-		}
-	}
-	return instance;
+    if (instance == null) {
+        synchronized (ImageLoader.class) {
+            if (instance == null) {
+                instance = new ImageLoader();
+            }
+        }
+    }
+    return instance;
 }
 ```
 
@@ -89,14 +89,14 @@ public static ImageLoader getInstance() {
 ```java
 private static volatile EventBus defaultInstance;
 public static EventBus getDefault() {
-	if (defaultInstance == null) {
-		synchronized (EventBus.class) {
-			if (defaultInstance == null) {
-				defaultInstance = new EventBus();
-			}
-		}
-	}
-	return defaultInstance;
+    if (defaultInstance == null) {
+        synchronized (EventBus.class) {
+            if (defaultInstance == null) {
+                defaultInstance = new EventBus();
+            }
+        }
+    }
+    return defaultInstance;
 }
 ```
 
@@ -107,14 +107,14 @@ public static EventBus getDefault() {
 ```java
 static InputMethodManager sInstance;
 public static InputMethodManager getInstance() {
-	synchronized (InputMethodManager.class) {
-		if (sInstance == null) {
-			IBinder b = ServiceManager.getService(Context.INPUT_METHOD_SERVICE);
-			IInputMethodManager service = IInputMethodManager.Stub.asInterface(b);
-			sInstance = new InputMethodManager(service, Looper.getMainLooper());
-		}
-		return sInstance;
-	}
+    synchronized (InputMethodManager.class) {
+        if (sInstance == null) {
+            IBinder b = ServiceManager.getService(Context.INPUT_METHOD_SERVICE);
+            IInputMethodManager service = IInputMethodManager.Stub.asInterface(b);
+            sInstance = new InputMethodManager(service, Looper.getMainLooper());
+        }
+        return sInstance;
+    }
 }
 ```
 
@@ -123,26 +123,26 @@ AccessibilityManager 中的单例，看代码这么长，其实就是进行了�
 ```java
 private static AccessibilityManager sInstance;
 public static AccessibilityManager getInstance(Context context) {
-	synchronized (sInstanceSync) {
-		if (sInstance == null) {
-			final int userId;
-			if (Binder.getCallingUid() == Process.SYSTEM_UID
-					|| context.checkCallingOrSelfPermission(
-							Manifest.permission.INTERACT_ACROSS_USERS)
-									== PackageManager.PERMISSION_GRANTED
-					|| context.checkCallingOrSelfPermission(
-							Manifest.permission.INTERACT_ACROSS_USERS_FULL)
-									== PackageManager.PERMISSION_GRANTED) {
-				userId = UserHandle.USER_CURRENT;
-			} else {
-				userId = UserHandle.myUserId();
-			}
-			IBinder iBinder = ServiceManager.getService(Context.ACCESSIBILITY_SERVICE);
-			IAccessibilityManager service = IAccessibilityManager.Stub.asInterface(iBinder);
-			sInstance = new AccessibilityManager(context, service, userId);
-		}
-	}
-	return sInstance;
+    synchronized (sInstanceSync) {
+        if (sInstance == null) {
+            final int userId;
+            if (Binder.getCallingUid() == Process.SYSTEM_UID
+                    || context.checkCallingOrSelfPermission(
+                            Manifest.permission.INTERACT_ACROSS_USERS)
+                                    == PackageManager.PERMISSION_GRANTED
+                    || context.checkCallingOrSelfPermission(
+                            Manifest.permission.INTERACT_ACROSS_USERS_FULL)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                userId = UserHandle.USER_CURRENT;
+            } else {
+                userId = UserHandle.myUserId();
+            }
+            IBinder iBinder = ServiceManager.getService(Context.ACCESSIBILITY_SERVICE);
+            IAccessibilityManager service = IAccessibilityManager.Stub.asInterface(iBinder);
+            sInstance = new AccessibilityManager(context, service, userId);
+        }
+    }
+    return sInstance;
 }
 ```
 
@@ -153,48 +153,45 @@ public static AccessibilityManager getInstance(Context context) {
 ```java
 public class ActivityManager {
 
-	private static volatile ActivityManager instance;
-	private Stack<Activity> mActivityStack = new Stack<Activity>();
-	
-	private ActivityManager(){
-		
-	}
-	
-	public static ActivityManager getInstance(){
-		if (instance == null) {
-		synchronized (ActivityManager.class) {
-			if (instance == null) {
-				instance = new ActivityManager();
-			}
-		}
-		return instance;
-	}
-	
-	public void addActicity(Activity act){
-		mActivityStack.push(act);
-	}
-	
-	public void removeActivity(Activity act){
-		mActivityStack.remove(act);
-	}
-	
-	public void killMyProcess(){
-		int nCount = mActivityStack.size();
-		for (int i = nCount - 1; i >= 0; i--) {
-        	Activity activity = mActivityStack.get(i);
-        	activity.finish();
+    private static volatile ActivityManager instance;
+    private Stack<Activity> mActivityStack = new Stack<Activity>();
+
+    private ActivityManager(){
+
+    }
+
+    public static ActivityManager getInstance(){
+        if (instance == null) {
+        synchronized (ActivityManager.class) {
+            if (instance == null) {
+                instance = new ActivityManager();
+            }
         }
-		
-		mActivityStack.clear();
-		android.os.Process.killProcess(android.os.Process.myPid());
-	}
+        return instance;
+    }
+
+    public void addActicity(Activity act){
+        mActivityStack.push(act);
+    }
+
+    public void removeActivity(Activity act){
+        mActivityStack.remove(act);
+    }
+
+    public void killMyProcess(){
+        int nCount = mActivityStack.size();
+        for (int i = nCount - 1; i >= 0; i--) {
+            Activity activity = mActivityStack.get(i);
+            activity.finish();
+        }
+
+        mActivityStack.clear();
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
 }
 ```
 
 这个类可以在开源中国的几个客户端中找到类似的源码
 
-* Git@OSC中的AppManager
-* android-app中的AppManager
 
-以上两个类是一样的，没区别。
 
