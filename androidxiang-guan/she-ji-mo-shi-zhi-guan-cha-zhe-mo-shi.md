@@ -31,29 +31,107 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 场景1中我们感兴趣的事情是天气预报，于是，我们应该定义一个Weather实体类。
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 | public class Weather { private String description;  public Weather\(String description\) { this.description = description;     }  public String getDescription\(\) { return description;     }  public void setDescription\(String description\) { this.description = description;     }  @Override public String toString\(\) { return "Weather{" + "description='" + description + '\'' + '}';     } } |
-| :--- | :--- |
+```java
+public class Weather {
+    private String description;
 
+    public Weather(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Weather{" +
+                "description='" + description + '\'' +
+                '}';
+    }
+}
+```
 
 然后定义我们的被观察者，我们想要这个被观察者能够通用，将其定义成泛型。内部应该暴露register和unregister方法供观察者订阅和取消订阅，至于观察者的保存，直接用ArrayList即可，此外，当有主题内容发送改变时，会即时通知观察者做出反应，因此应该暴露一个notifyObservers方法，以上方法的具体实现见如下代码。
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 | public class Observable&lt;T&gt; {     List&lt;Observer&lt;T&gt;&gt; mObservers = new ArrayList&lt;Observer&lt;T&gt;&gt;\(\);  public void register\(Observer&lt;T&gt; observer\) { if \(observer == null\) { throw new NullPointerException\("observer == null"\);         } synchronized \(this\) { if \(!mObservers.contains\(observer\)\)                 mObservers.add\(observer\);         }     }  public synchronized void unregister\(Observer&lt;T&gt; observer\) {         mObservers.remove\(observer\);     }  public void notifyObservers\(T data\) { for \(Observer&lt;T&gt; observer : mObservers\) {             observer.onUpdate\(this, data\);         }     }  } |
-| :--- | :--- |
+```java
+public class Observable<T> {
+    List<Observer<T>> mObservers = new ArrayList<Observer<T>>();
 
+    public void register(Observer<T> observer) {
+        if (observer == null) {
+            throw new NullPointerException("observer == null");
+        }
+        synchronized (this) {
+            if (!mObservers.contains(observer))
+                mObservers.add(observer);
+        }
+    }
+
+    public synchronized void unregister(Observer<T> observer) {
+        mObservers.remove(observer);
+    }
+
+    public void notifyObservers(T data) {
+        for (Observer<T> observer : mObservers) {
+            observer.onUpdate(this, data);
+        }
+    }
+
+}
+```
 
 而我们的观察者，只需要实现一个观察者的接口Observer，该接口也是泛型的。其定义如下。
 
-| 1 2 3 | public interface Observer&lt;T&gt; { void onUpdate\(Observable&lt;T&gt; observable,T data\); } |
-| :--- | :--- |
-
+```java
+public interface Observer<T> {
+    void onUpdate(Observable<T> observable,T data);
+}
+```
 
 一旦订阅的主题发送变换就会回调该接口。
 
 我们来使用一下，我们定义了一个天气变换的主题，也就是被观察者，还有两个观察者观察天气变换，一旦变换了，就打印出天气信息，注意一定要调用被观察者的register进行注册，否则会收不到变换信息。而一旦不敢兴趣了，直接调用unregister方法进行取消注册即可
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 | public class Main { public static void main\(String \[\] args\){         Observable&lt;Weather&gt; observable=new Observable&lt;Weather&gt;\(\);         Observer&lt;Weather&gt; observer1=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者1："+data.toString\(\)\);             }         };         Observer&lt;Weather&gt; observer2=new Observer&lt;Weather&gt;\(\) { @Override public void onUpdate\(Observable&lt;Weather&gt; observable, Weather data\) {                 System.out.println\("观察者2："+data.toString\(\)\);             }         };          observable.register\(observer1\);         observable.register\(observer2\);           Weather weather=new Weather\("晴转多云"\);         observable.notifyObservers\(weather\);          Weather weather1=new Weather\("多云转阴"\);         observable.notifyObservers\(weather1\);          observable.unregister\(observer1\);          Weather weather2=new Weather\("台风"\);         observable.notifyObservers\(weather2\);      } } |
-| :--- | :--- |
+```java
+public class Main {
+    public static void main(String [] args){
+        Observable<Weather> observable=new Observable<Weather>();
+        Observer<Weather> observer1=new Observer<Weather>() {
+            @Override
+            public void onUpdate(Observable<Weather> observable, Weather data) {
+                System.out.println("观察者1："+data.toString());
+            }
+        };
+        Observer<Weather> observer2=new Observer<Weather>() {
+            @Override
+            public void onUpdate(Observable<Weather> observable, Weather data) {
+                System.out.println("观察者2："+data.toString());
+            }
+        };
 
+        observable.register(observer1);
+        observable.register(observer2);
+
+
+        Weather weather=new Weather("晴转多云");
+        observable.notifyObservers(weather);
+
+        Weather weather1=new Weather("多云转阴");
+        observable.notifyObservers(weather1);
+
+        observable.unregister(observer1);
+
+        Weather weather2=new Weather("台风");
+        observable.notifyObservers(weather2);
+
+    }
+}
+```
 
 最后的输出结果也是没有什么问题的，如下
 
@@ -65,23 +143,65 @@ var currentBlogApp = 'android-blogs', cb\_enable\_mathjax=false;var isLogined=fa
 
 接下来我们看看观察者模式在android中的应用。我们从最简单的开始。还记得我们为一个Button设置点击事件的代码吗。
 
-| 1 2 3 4 5 6 7 | Button btn=new Button\(this\); btn.setOnClickListener\(new View.OnClickListener\(\) { @Override public void onClick\(View v\) {         Log.e\("TAG","click"\);     } }\); |
-| :--- | :--- |
-
+```java
+Button btn=new Button(this);
+btn.setOnClickListener(new View.OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		Log.e("TAG","click");
+	}
+});
+```
 
 其实严格意义上讲，这个最多算是回调，但是我们可以将其看成是一对一的观察者模式，即只有一个观察者。
 
 其实只要是set系列的设置监听器的方法最多都只能算回调，但是有一些监听器式add进去的，这种就是观察者模式了，比如RecyclerView中的addOnScrollListener方法
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 | private List&lt;OnScrollListener&gt; mScrollListeners; public void addOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners == null\) {         mScrollListeners = new ArrayList&lt;OnScrollListener&gt;\(\);     }     mScrollListeners.add\(listener\); } public void removeOnScrollListener\(OnScrollListener listener\) { if \(mScrollListeners != null\) {         mScrollListeners.remove\(listener\);     } } public void clearOnScrollListeners\(\) { if \(mScrollListeners != null\) {         mScrollListeners.clear\(\);     } } |
-| :--- | :--- |
-
+```java
+private List<OnScrollListener> mScrollListeners;
+public void addOnScrollListener(OnScrollListener listener) {
+	if (mScrollListeners == null) {
+		mScrollListeners = new ArrayList<OnScrollListener>();
+	}
+	mScrollListeners.add(listener);
+}
+public void removeOnScrollListener(OnScrollListener listener) {
+	if (mScrollListeners != null) {
+		mScrollListeners.remove(listener);
+	}
+}
+public void clearOnScrollListeners() {
+	if (mScrollListeners != null) {
+		mScrollListeners.clear();
+	}
+}
+```
 
 然后有滚动事件时便会触发观察者进行方法回调
 
-| 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 | public abstract static class OnScrollListener { public void onScrollStateChanged\(RecyclerView recyclerView, int newState\){} public void onScrolled\(RecyclerView recyclerView, int dx, int dy\){} }  void dispatchOnScrolled\(int hresult, int vresult\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) {             mScrollListeners.get\(i\).onScrolled\(this, hresult, vresult\);         }     } } void dispatchOnScrollStateChanged\(int state\) { //... if \(mScrollListeners != null\) { for \(int i = mScrollListeners.size\(\) - 1; i &gt;= 0; i--\) {             mScrollListeners.get\(i\).onScrollStateChanged\(this, state\);         }     } } |
-| :--- | :--- |
+```java
+public abstract static class OnScrollListener {
+	public void onScrollStateChanged(RecyclerView recyclerView, int newState){}
+	public void onScrolled(RecyclerView recyclerView, int dx, int dy){}
+}
 
+void dispatchOnScrolled(int hresult, int vresult) {
+	//...
+	if (mScrollListeners != null) {
+		for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+			mScrollListeners.get(i).onScrolled(this, hresult, vresult);
+		}
+	}
+}
+void dispatchOnScrollStateChanged(int state) {
+	//...
+	if (mScrollListeners != null) {
+		for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+			mScrollListeners.get(i).onScrollStateChanged(this, state);
+		}
+	}
+}
+```
 
 类似的方法很多很多，都是add监听器系列的方法，这里也不再举例。
 
