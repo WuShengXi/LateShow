@@ -6,5 +6,5 @@
 
 ## Android相关整理记录
 
-* [设计模式](Android相关整理记录/she-ji-mo-shi.md)
+* [设计模式](Android相关整理记录/设计模式.md)
 
