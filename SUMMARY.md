@@ -15,4 +15,5 @@
 * [Android项目重构](androidxiang-guan/androidxiang-mu-zhong-gou.md)
   * [Android项目重构之路：架构篇](androidxiang-guan/androidxiang-mu-zhong-gou/androidxiang-mu-zhong-gou-zhi-lu-ff1a-jia-gou-pian.md)
   * [Android项目重构之路：界面篇 ](androidxiang-guan/androidxiang-mu-zhong-gou/androidxiang-mu-zhong-gou-zhi-lu-ff1a-jie-mian-pian.md)
+  * [Android项目重构之路：实现篇 ](androidxiang-guan/androidxiang-mu-zhong-gou/androidxiang-mu-zhong-gou-zhi-lu-ff1a-shi-xian-pian.md)
 
