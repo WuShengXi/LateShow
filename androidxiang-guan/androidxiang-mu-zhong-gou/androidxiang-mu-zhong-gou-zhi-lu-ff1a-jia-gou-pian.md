@@ -35,7 +35,7 @@ public class Response<T> {
     private int pageSize;
     private int maxCount;
     private int maxPage;
-    
+
     //getter和setter方法
     ...    
 }
@@ -45,148 +45,27 @@ public class Response<T> {
 
 Api接口类定义了所有的接口方法，方法定义类似如下：
 
-```
-public
-Response
-<
-Void
->
-login
-(
-String
-loginName
-,
-String
-password
-);
-public
-Response
-<
-VersionInfo
->
-getLastVersion
-();
-public
-Response
-<
-List
-<
-Coupon
->
->
-listNewCoupon
-(
-int
-currentPage
-,
-int
-pageSize
-);
+```java
+public Response<Void> login(String loginName, String password);
+public Response<VersionInfo> getLastVersion();
+public Response<List<Coupon>> listNewCoupon(int currentPage, int pageSize);
 ```
 
 ApiImpl则实现所有Api接口了，实现代码类似如下：
 
-```
+```java
 @Override
-public
-Response
-<
-Void
->
-login
-(
-String
-loginName
-,
-String
-password
-)
-{
-try
-{
-String
-method
-=
-Api
-.
-LOGIN
-;
-List
-<
-NameValuePair
->
-params
-=
-new
-ArrayList
-<
-NameValuePair
->
-();
-params
-.
-add
-(
-new
-BasicNameValuePair
-(
-"loginName"
-,
-loginName
-));
-params
-.
-add
-(
-new
-BasicNameValuePair
-(
-"password"
-,
-EncryptUtil
-.
-makeMD5
-(
-password
-)));
-TypeToken
-<
-Response
-<
-Void
->
->
-typeToken
-=
-new
-TypeToken
-<
-Response
-<
-Void
->
->
-(){};
-return
-postEngine
-.
-specialHandle
-(
-method
-,
-params
-,
-typeToken
-);
-}
-catch
-(
-Exception
-e
-)
-{
-//异常处理
-}
+public Response<Void> login(String loginName, String password) {
+    try {
+        String method = Api.LOGIN;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("loginName", loginName));
+        params.add(new BasicNameValuePair("password", EncryptUtil.makeMD5(password)));
+        TypeToken<Response<Void>> typeToken = new TypeToken<Response<Void>>(){};
+        return postEngine.specialHandle(method, params, typeToken);
+    } catch (Exception e) {
+        //异常处理
+    }
 }
 ```
 
@@ -197,58 +76,26 @@ e
 
 核心层介于接口层和界面层之间，主要处理业务逻辑，集中做数据处理。向上，给界面层提供数据处理的接口，称为Action；向下，调用接口层向服务器请求数据。向上的Action中定义的方法类似如下：
 
-```
-public
-void
-getCustomer
-(
-String
-loginName
-,
-CallbackListener
-<
-Customer
->
-callbackListener
-);
+```java
+public void getCustomer(String loginName, CallbackListener<Customer> callbackListener);
 ```
 
 这是一个获取用户信息的方法，因为需要向接口层请求服务器Api数据，所以添加了callback监听器，在callback里对返回的数据结果进行操作。CallbackListener就定义了一个成功和一个失败的方法，代码如下：
 
-```
-public
-interface
-CallbackListener
-<
-T
->
-{
-/**
+```java
+public interface CallbackListener<T> {
+    /**
      * 请求的响应结果为成功时调用
      * @param data  返回的数据
      */
-public
-void
-onSuccess
-(
-T
-data
-);
-/**
+    public void onSuccess(T data);
+
+    /**
      * 请求的响应结果为失败时调用
      * @param errorEvent 错误码
      * @param message    错误信息
      */
-public
-void
-onFailure
-(
-String
-errorEvent
-,
-String
-message
-);
+    public void onFailure(String errorEvent, String message);
 }
 ```
 
@@ -274,66 +121,31 @@ message
 模型层横跨所有层级，封装了所有数据实体类，基本上也是跟json的obj数据一致的，在接口层会将obj转化为相应的实体类，再通过Action传到界面层。另外，模型层还定义了一些常量，比如用户状态、支付状态等。在Api里返回的是用1、2、3这样定义的，而我则用枚举类定义了这些状态。用枚举类定义，就可以避免了边界的检查，同时也更明了，谁会记得那么多1、2、3都代表什么状态呢。然而用枚举类定义的话，就必须能将1、2、3转化为相应的枚举常量。这里，我提供两种实现方式：  
 1.使用gson的@SerializedName标签，比如0为FALSE，1为TRUE，则可以如下定义：
 
-```
-public
-enum
-BooleanType
-{
-@SerializedName
-(
-"0"
-)
-FALSE
-,
-@SerializedName
-(
-"1"
-)
-TRUE
+```java
+public enum BooleanType {
+    @SerializedName("0")
+    FALSE,
+    @SerializedName("1")
+    TRUE
 }
 ```
 
 2.通过定义一个value，如下：
 
-```
-public
-enum
-BooleanType
-{
-FALSE
-(
-"0"
-),
-TRUE
-(
-"1"
-);
-private
-String
-value
-;
-BooleanType
-(
-String
-value
-)
-{
-this
-.
-value
-=
-value
-;
-}
-public
-String
-getValue
-()
-{
-return
-value
-;
-}
+```java
+public enum BooleanType {
+    FALSE("0"),
+    TRUE("1");
+    
+    private String value;
+
+    BooleanType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
 ```
 
