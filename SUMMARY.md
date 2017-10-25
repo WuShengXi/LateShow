@@ -1,3 +1,4 @@
+
 # Summary
 
 ## 夜幕
@@ -7,4 +8,5 @@
 ## Android相关整理记录
 
 * [设计模式](Android相关整理记录/设计模式.md)
+  * [Build模式](Android相关整理记录/设计模式/Build模式.md)
 
