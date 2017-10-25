@@ -6,8 +6,9 @@
 
 ## Android相关整理记录
 
-* \[设计模式\]\(Android相关整理记录/设计模式.md\)
+* [Android相关整理记录/设计模式/README.md](/Android相关整理记录/设计模式/README.md)
   * \[设计模式之Build模式\]\(androidxiang-guan/设计模式之Build模式.md\)
+  * 
 * \* \[设计模式之单例模式\]\(androidxiang-guan/设计模式之单例模式.md\)
 
   \* \[设计模式之策略模式\]\(androidxiang-guan/设计模式之策略模式.md\)
