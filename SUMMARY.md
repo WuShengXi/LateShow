@@ -17,4 +17,5 @@
   * [界面篇](Android相关整理记录/项目重构/界面篇.md)
 * [常用第三方库](Android相关整理记录/常用第三方库.md)
   * [图片编辑](Android-Related/Other-Library/Picture-Editor.md)
-  * [图片选择器](Android相关整理记录/常用第三方库整理/图片选择器.md)
+  * [图片选择器](Android-Related/Other-Library/Picture-Selection.md)
+
