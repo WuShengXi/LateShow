@@ -1,4 +1,4 @@
-Android项目重构之路:实现篇
+## Android项目重构之路:实现篇
 
 前两篇文章[Android项目重构之路:架构篇](http://keeganlee.me/post/android/20150605)和[Android项目重构之路:界面篇](http://keeganlee.me/post/android/20150619)已经讲了我的项目开始搭建时的架构设计和界面设计，这篇就讲讲具体怎么实现的，以实现最小化可用产品\(MVP\)的目标，用最简单的方式来搭建架构和实现代码。  
 IDE采用Android Studio，Demo实现的功能为用户注册、登录和展示一个券列表，数据采用我们现有项目的测试数据，接口也是我们项目中的测试接口。
@@ -814,3 +814,235 @@ public class LoginActivity extends KBaseActivity {
 ```
 
 登录页的布局文件则如下：
+
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.keegan.kandroid.activity.LoginActivity">
+
+    <EditText
+        android:id="@+id/edit_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/edit_vertical_margin"
+        android:layout_marginBottom="@dimen/edit_vertical_margin"
+        android:hint="@string/hint_phone"
+        android:inputType="phone"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/edit_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/edit_vertical_margin"
+        android:layout_marginBottom="@dimen/edit_vertical_margin"
+        android:hint="@string/hint_password"
+        android:inputType="textPassword"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/btn_vertical_margin"
+        android:layout_marginBottom="@dimen/btn_vertical_margin"
+        android:onClick="toLogin"
+        android:text="@string/btn_login" />
+
+</LinearLayout>
+```
+
+可以看到，EditText的id命名统一以edit开头，而在Activity里的控件变量名则以Edit结尾。按钮的onClick也统一用toXXX的方式命名，明确表明这是一个将要做的动作。还有，string，dimen也都统一在相应的资源文件里按照相应的规范去定义。 注册页和登陆页差不多，这里就不展示代码了。主要再看看券列表页，因为用到了ListView，ListView需要添加适配器。实际上，适配器很多代码都是可以复用的，因此，我抽象了一个适配器的基类，代码如下：
+
+```java
+public abstract class KBaseAdapter<T> extends BaseAdapter {
+
+    protected Context context;
+    protected LayoutInflater inflater;
+    protected List<T> itemList = new ArrayList<T>();
+
+    public KBaseAdapter(Context context) {
+        this.context = context;
+        inflater = LayoutInflater.from(context);
+    }
+
+    /**
+     * 判断数据是否为空
+     *
+     * @return 为空返回true，不为空返回false
+     */
+    public boolean isEmpty() {
+        return itemList.isEmpty();
+    }
+
+    /**
+     * 在原有的数据上添加新数据
+     *
+     * @param itemList
+     */
+    public void addItems(List<T> itemList) {
+        this.itemList.addAll(itemList);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 设置为新的数据，旧数据会被清空
+     *
+     * @param itemList
+     */
+    public void setItems(List<T> itemList) {
+        this.itemList.clear();
+        this.itemList = itemList;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 清空数据
+     */
+    public void clearItems() {
+        itemList.clear();
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return itemList.size();
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return itemList.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    @Override
+    abstract public View getView(int i, View view, ViewGroup viewGroup);
+}
+```
+这个抽象基类集成了设置数据的方法，每个具体的适配器类只要再实现各自的getView方法就可以了。本Demo的券列表的适配器如下：
+
+```java
+public class CouponListAdapter extends KBaseAdapter<CouponBO> {
+
+    public CouponListAdapter(Context context) {
+        super(context);
+    }
+
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        ViewHolder holder;
+        if (view == null) {
+            view = inflater.inflate(R.layout.item_list_coupon, viewGroup, false);
+            holder = new ViewHolder();
+            holder.titleText = (TextView) view.findViewById(R.id.text_item_title);
+            holder.infoText = (TextView) view.findViewById(R.id.text_item_info);
+            holder.priceText = (TextView) view.findViewById(R.id.text_item_price);
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+
+        CouponBO coupon = itemList.get(i);
+        holder.titleText.setText(coupon.getName());
+        holder.infoText.setText(coupon.getIntroduce());
+        SpannableString priceString;
+        // 根据不同的券类型展示不同的价格显示方式
+        switch (coupon.getModelType()) {
+            default:
+            case CouponBO.TYPE_CASH:
+                priceString = CouponPriceUtil.getCashPrice(context, coupon.getFaceValue(), coupon.getEstimateAmount());
+                break;
+            case CouponBO.TYPE_DEBIT:
+                priceString = CouponPriceUtil.getVoucherPrice(context, coupon.getDebitAmount(), coupon.getMiniAmount());
+                break;
+            case CouponBO.TYPE_DISCOUNT:
+                priceString = CouponPriceUtil.getDiscountPrice(context, coupon.getDiscount(), coupon.getMiniAmount());
+                break;
+        }
+        holder.priceText.setText(priceString);
+
+        return view;
+    }
+
+    static class ViewHolder {
+        TextView titleText;
+        TextView infoText;
+        TextView priceText;
+    }
+
+}
+```
+
+而券列表的Activity简单实现如下：
+
+```java
+public class CouponListActivity extends KBaseActivity implements SwipeRefreshLayout.OnRefreshListener {
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ListView listView;
+    private CouponListAdapter listAdapter;
+    private int currentPage = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_coupon_list);
+
+        initViews();
+        getData();
+
+        // TODO 添加上拉加载更多的功能
+    }
+
+    private void initViews() {
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        listView = (ListView) findViewById(R.id.list_view);
+        listAdapter = new CouponListAdapter(this);
+        listView.setAdapter(listAdapter);
+    }
+
+    private void getData() {
+        this.appAction.listCoupon(currentPage, new ActionCallbackListener<List<CouponBO>>() {
+            @Override
+            public void onSuccess(List<CouponBO> data) {
+                if (!data.isEmpty()) {
+                    if (currentPage == 1) { // 第一页
+                        listAdapter.setItems(data);
+                    } else { // 分页数据
+                        listAdapter.addItems(data);
+                    }
+                }
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(String errorEvent, String message) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    @Override
+    public void onRefresh() {
+        // 需要重置当前页为第一页，并且清掉数据
+        currentPage = 1;
+        listAdapter.clearItems();
+        getData();
+    }
+}
+```
+> ## 完结
+
+终于写完了，代码也终于放上了github，为了让人更容易理解，因此很多都比较简单，没有再进行扩展。 github地址：https://github.com/keeganlee/kandroid
