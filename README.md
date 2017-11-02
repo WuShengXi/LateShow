@@ -1,5 +1,7 @@
 # LateShow
 
+
+
 ## Android相关整理记录
 
 * [设计模式](Android-Related/Design_Pattern.md)
