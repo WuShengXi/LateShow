@@ -18,7 +18,3 @@
 * [常用第三方库](Android相关整理记录/常用第三方库.md)
   * [图片编辑](Android-Related/Other-Library/Picture-Editor.md)
   * [图片选择器](Android-Related/Other-Library/Picture-Selection.md)
-<<<<<<< HEAD
-=======
-
->>>>>>> f7ed6f1f448f289d7a56363fdc73079d823a8eb5
